@@ -20,6 +20,8 @@ import { useState } from 'react'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { toast } from 'react-hot-toast'
+import { ModelSelector } from '@/components/model-selector'
+import { ChatConfigMenu } from '@/components/chat-config-menu'
 
 const IS_PREVIEW = process.env.VERCEL_ENV === 'preview'
 export interface ChatProps extends React.ComponentProps<'div'> {
@@ -32,6 +34,9 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
     'ai-token',
     null
   )
+
+  const [model, setModel] = useState<string>('gpt-3.5-turbo')
+  const [temperature, setTemperature] = useState<number>(0.7)
   const [previewTokenDialog, setPreviewTokenDialog] = useState(IS_PREVIEW)
   const [previewTokenInput, setPreviewTokenInput] = useState(previewToken ?? '')
   const { messages, append, reload, stop, isLoading, input, setInput } =
@@ -40,7 +45,9 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
       id,
       body: {
         id,
-        previewToken
+        previewToken,
+        model,
+        temperature
       },
       onResponse(response) {
         if (response.status === 401) {
@@ -48,9 +55,16 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
         }
       }
     })
+
   return (
     <>
       <div className={cn('pb-[200px] pt-4 md:pt-10', className)}>
+        <ChatConfigMenu
+          model={model}
+          temperature={temperature}
+          onModelChange={setModel}
+          onTemperatureChange={setTemperature}
+        />
         {messages.length ? (
           <>
             <ChatList messages={messages} />

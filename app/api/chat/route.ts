@@ -15,8 +15,10 @@ const openai = new OpenAIApi(configuration)
 
 export async function POST(req: Request) {
   const json = await req.json()
-  const { messages, previewToken } = json
+  const { messages, previewToken, model, temperature } = json
   const userId = (await auth())?.user.id
+
+  console.log(model, temperature)
 
   if (!userId) {
     return new Response('Unauthorized', {
@@ -29,9 +31,9 @@ export async function POST(req: Request) {
   }
 
   const res = await openai.createChatCompletion({
-    model: 'gpt-3.5-turbo',
+    model: model || 'gpt-3.5-turbo',
     messages,
-    temperature: 0.7,
+    temperature: temperature || 0.7,
     stream: true
   })
 
